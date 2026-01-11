@@ -174,5 +174,5 @@ export function getWinner(
  * Create a shareable game URL
  */
 export function getGameUrl(gameCode: string): string {
-  return `${window.location.origin}/join/${gameCode}`;
+  return `${window.location.origin}/#/join/${gameCode}`;
 }
