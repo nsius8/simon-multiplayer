@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef, memo } from 'react';
 import { motion } from 'motion/react';
 import { type GameState, calculateTimeLimit } from '../../types/game.types';
 import { playSuccessSound, playErrorSound } from '../../utils/sound';
+import { groupIntoRows } from '../../utils/colorUtils';
 import ColorButton from './ColorButton';
 import Timer from './Timer';
 import SequenceDisplay from './SequenceDisplay';
@@ -102,12 +103,8 @@ export const GameBoard = memo(function GameBoard({
     }
   }, [phase, playerInput, inputStartTime, onSubmit]);
 
-  const getGridCols = () => {
-    const count = colors.length;
-    if (count <= 4) return 'grid-cols-2';
-    if (count <= 6) return 'grid-cols-3';
-    return 'grid-cols-3';
-  };
+  // Group colors into rows for custom layout
+  const colorRows = groupIntoRows(colors);
 
   const player = game.players.find((p) => p.id === playerId);
   const playersRemaining = game.players.filter(
@@ -157,16 +154,20 @@ export const GameBoard = memo(function GameBoard({
             warningThreshold={5}
           />
 
-          <div className={`grid ${getGridCols()} gap-3 md:gap-4`}>
-            {colors.map((color) => (
-              <ColorButton
-                key={color.id}
-                color={color}
-                onClick={() => handleColorClick(color.id)}
-                disabled={player?.status === 'eliminated'}
-                size="large"
-                showFeedback={feedback[color.id]}
-              />
+          <div className="flex flex-col gap-3 md:gap-4">
+            {colorRows.map((row, rowIndex) => (
+              <div key={rowIndex} className="flex justify-center gap-3 md:gap-4">
+                {row.map((color) => (
+                  <ColorButton
+                    key={color.id}
+                    color={color}
+                    onClick={() => handleColorClick(color.id)}
+                    disabled={player?.status === 'eliminated'}
+                    size="large"
+                    showFeedback={feedback[color.id]}
+                  />
+                ))}
+              </div>
             ))}
           </div>
 

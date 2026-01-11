@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, memo } from 'react';
 import { motion } from 'motion/react';
 import { type GameColor, type GameSpeed, getSpeedDelay } from '../../types/game.types';
-import { getColorById } from '../../utils/colorUtils';
+import { getColorById, groupIntoRows } from '../../utils/colorUtils';
 import { playColorByColor } from '../../utils/sound';
 import ColorButton from './ColorButton';
 
@@ -60,13 +60,8 @@ export const SequenceDisplay = memo(function SequenceDisplay({
     playSequence();
   }, [playSequence]);
 
-  // Get grid layout
-  const getGridCols = () => {
-    const count = colors.length;
-    if (count <= 4) return 'grid-cols-2';
-    if (count <= 6) return 'grid-cols-3';
-    return 'grid-cols-3';
-  };
+  // Group colors into rows for custom layout
+  const colorRows = groupIntoRows(colors);
 
   return (
     <div className={`flex flex-col items-center gap-6 ${className}`}>
@@ -78,21 +73,25 @@ export const SequenceDisplay = memo(function SequenceDisplay({
         Watch Carefully!
       </motion.h2>
 
-      <div className={`grid ${getGridCols()} gap-3 md:gap-4`}>
-        {colors.map((color) => {
-          const isActive =
-            currentIndex >= 0 && sequence[currentIndex] === color.id;
-          return (
-            <ColorButton
-              key={color.id}
-              color={color}
-              isActive={isActive}
-              disabled={true}
-              size="large"
-              playSound={false}
-            />
-          );
-        })}
+      <div className="flex flex-col gap-3 md:gap-4">
+        {colorRows.map((row, rowIndex) => (
+          <div key={rowIndex} className="flex justify-center gap-3 md:gap-4">
+            {row.map((color) => {
+              const isActive =
+                currentIndex >= 0 && sequence[currentIndex] === color.id;
+              return (
+                <ColorButton
+                  key={color.id}
+                  color={color}
+                  isActive={isActive}
+                  disabled={true}
+                  size="large"
+                  playSound={false}
+                />
+              );
+            })}
+          </div>
+        ))}
       </div>
 
       {/* Sequence progress indicators */}

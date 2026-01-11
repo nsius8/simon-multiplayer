@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { motion } from 'motion/react';
 import { type GameColor } from '../../types/game.types';
+import { groupIntoRows } from '../../utils/colorUtils';
 import { Button } from '../ui/button';
 import { cn } from '../ui/utils';
 
@@ -41,17 +42,21 @@ export const ColorPreview = memo(function ColorPreview({
           </Button>
         )}
       </div>
-      <div className="flex flex-wrap gap-2">
-        {colors.map((color, index) => (
-          <motion.div
-            key={color.id}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: index * 0.05 }}
-            className="w-12 h-12 md:w-14 md:h-14 rounded-lg shadow-md cursor-default"
-            style={{ backgroundColor: color.color }}
-            title={color.name}
-          />
+      <div className="flex flex-col gap-2">
+        {groupIntoRows(colors).map((row, rowIndex) => (
+          <div key={rowIndex} className="flex justify-center gap-2">
+            {row.map((color, index) => (
+              <motion.div
+                key={color.id}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: (rowIndex * 3 + index) * 0.05 }}
+                className="w-12 h-12 md:w-14 md:h-14 rounded-lg shadow-md cursor-default"
+                style={{ backgroundColor: color.color }}
+                title={color.name}
+              />
+            ))}
+          </div>
         ))}
       </div>
     </div>
