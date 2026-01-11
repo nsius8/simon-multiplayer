@@ -6,7 +6,15 @@ import type {
   GameSettings,
   Player,
   GameColor,
+  RoundResult,
+  LeaderboardEntry,
 } from '../types/game.types';
+
+interface RoundEndData {
+  results: RoundResult[];
+  leaderboard: LeaderboardEntry[];
+  eliminatedPlayers: string[];
+}
 
 interface GameContextValue {
   // Game state
@@ -15,6 +23,8 @@ interface GameContextValue {
   isLoading: boolean;
   error: string | null;
   connected: boolean;
+  roundEndData: RoundEndData | null;
+  isRoundEnded: boolean;
 
   // Game actions
   createGame: (settings: GameSettings, hostName: string) => void;
@@ -26,6 +36,7 @@ interface GameContextValue {
   newGame: () => void;
   leaveGame: () => void;
   clearError: () => void;
+  clearRoundEnd: () => void;
 
   // Sound
   muted: boolean;
@@ -53,6 +64,8 @@ export function GameProvider({ children }: GameProviderProps) {
     isLoading: gameHook.isLoading,
     error: gameHook.error,
     connected: gameHook.connected,
+    roundEndData: gameHook.roundEndData,
+    isRoundEnded: gameHook.isRoundEnded,
 
     // Game actions
     createGame: gameHook.createGame,
@@ -64,6 +77,7 @@ export function GameProvider({ children }: GameProviderProps) {
     newGame: gameHook.newGame,
     leaveGame: gameHook.leaveGame,
     clearError: gameHook.clearError,
+    clearRoundEnd: gameHook.clearRoundEnd,
 
     // Sound
     muted: soundHook.muted,

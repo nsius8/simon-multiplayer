@@ -371,6 +371,20 @@ function startNewRound(io: Server, game: ReturnType<typeof getGameById>): void {
 function processRoundEnd(io: Server, game: ReturnType<typeof getGameById>): void {
   if (!game) return;
 
+  // Mark players who didn't submit as having failed
+  game.players.forEach((player) => {
+    if (player.status !== 'eliminated' && !player.finishedCurrentRound) {
+      // Player didn't submit - mark as failed
+      player.finishedCurrentRound = true;
+      player.stats.mistakes++;
+      
+      // In Last Man Standing mode, eliminate them
+      if (game.settings.mode === 'lastManStanding') {
+        player.status = 'eliminated';
+      }
+    }
+  });
+
   const results = getRoundResults(game);
   const leaderboard = getLeaderboard(game);
   const eliminatedPlayers = game.players

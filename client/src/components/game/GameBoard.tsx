@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from 'react';
+import { useState, useCallback, useEffect, useRef, memo } from 'react';
 import { motion } from 'motion/react';
 import { type GameState, calculateTimeLimit } from '../../types/game.types';
 import { playSuccessSound, playErrorSound } from '../../utils/sound';
@@ -27,6 +27,17 @@ export const GameBoard = memo(function GameBoard({
   const [playerInput, setPlayerInput] = useState<string[]>([]);
   const [inputStartTime, setInputStartTime] = useState<number>(0);
   const [feedback, setFeedback] = useState<Record<string, 'correct' | 'wrong' | null>>({});
+  const lastRoundRef = useRef(game.currentRound);
+
+  // Reset phase when a new round starts
+  useEffect(() => {
+    if (game.currentRound !== lastRoundRef.current) {
+      lastRoundRef.current = game.currentRound;
+      setPhase('watching');
+      setPlayerInput([]);
+      setFeedback({});
+    }
+  }, [game.currentRound]);
 
   const colors = game.settings.selectedColors;
   const sequence = game.sequence;

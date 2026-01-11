@@ -7,8 +7,6 @@ import GameBoard from '../components/game/GameBoard';
 import RoundLeaderboard from '../components/leaderboard/RoundLeaderboard';
 import FinalLeaderboard from '../components/leaderboard/FinalLeaderboard';
 import { Button } from '../components/ui/button';
-import { type RoundResult } from '../types/game.types';
-// TODO: Connect handleRoundEnd to socket events when implementing round transitions
 import { playersToLeaderboard, getWinner } from '../utils/gameUtils';
 
 type GamePhase = 'playing' | 'roundEnd' | 'gameEnd';
@@ -25,10 +23,12 @@ export default function Game() {
     playAgain,
     newGame,
     leaveGame,
+    isRoundEnded,
+    roundEndData,
+    clearRoundEnd,
   } = useGameContext();
 
   const [phase, setPhase] = useState<GamePhase>('playing');
-  const [roundResults, setRoundResults] = useState<RoundResult[]>([]);
 
   // Redirect if no game
   useEffect(() => {
@@ -44,6 +44,13 @@ export default function Game() {
     }
   }, [game?.status]);
 
+  // Handle round end
+  useEffect(() => {
+    if (isRoundEnded && roundEndData) {
+      setPhase('roundEnd');
+    }
+  }, [isRoundEnded, roundEndData]);
+
   const handleSubmitSequence = useCallback(
     (sequence: string[], reactionTime: number) => {
       submitSequence(sequence, reactionTime);
@@ -53,8 +60,8 @@ export default function Game() {
 
   const handleContinue = useCallback(() => {
     setPhase('playing');
-    setRoundResults([]);
-  }, []);
+    clearRoundEnd();
+  }, [clearRoundEnd]);
 
   const handleLeave = useCallback(() => {
     leaveGame();
@@ -130,9 +137,9 @@ export default function Game() {
           />
         )}
 
-        {phase === 'roundEnd' && (
+        {phase === 'roundEnd' && roundEndData && (
           <RoundLeaderboard
-            results={roundResults}
+            results={roundEndData.results}
             mode={game.settings.mode}
             round={game.currentRound}
             totalRounds={game.settings.rounds}

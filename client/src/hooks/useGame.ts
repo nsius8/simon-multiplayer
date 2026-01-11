@@ -3,9 +3,17 @@ import {
   type GameState,
   type GameSettings,
   type Player,
+  type RoundResult,
+  type LeaderboardEntry,
 } from '../types/game.types';
 import { useSocket } from './useSocket';
 import { generatePlayerId } from '../utils/gameUtils';
+
+interface RoundEndData {
+  results: RoundResult[];
+  leaderboard: LeaderboardEntry[];
+  eliminatedPlayers: string[];
+}
 
 interface UseGameReturn {
   game: GameState | null;
@@ -13,6 +21,8 @@ interface UseGameReturn {
   isLoading: boolean;
   error: string | null;
   connected: boolean;
+  roundEndData: RoundEndData | null;
+  isRoundEnded: boolean;
   createGame: (settings: GameSettings, hostName: string) => void;
   joinGame: (code: string, playerName: string) => void;
   startGame: () => void;
@@ -22,6 +32,7 @@ interface UseGameReturn {
   newGame: () => void;
   leaveGame: () => void;
   clearError: () => void;
+  clearRoundEnd: () => void;
 }
 
 export function useGame(): UseGameReturn {
@@ -30,6 +41,8 @@ export function useGame(): UseGameReturn {
   const [playerId] = useState(() => generatePlayerId());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [roundEndData, setRoundEndData] = useState<RoundEndData | null>(null);
+  const [isRoundEnded, setIsRoundEnded] = useState(false);
 
   const player = game?.players.find((p) => p.id === playerId) || null;
 
@@ -135,7 +148,9 @@ export function useGame(): UseGameReturn {
     );
 
     cleanups.push(
-      on('round:end', ({ eliminatedPlayers }) => {
+      on('round:end', ({ results, leaderboard, eliminatedPlayers }) => {
+        setRoundEndData({ results, leaderboard, eliminatedPlayers });
+        setIsRoundEnded(true);
         setGame((prev) => {
           if (!prev) return prev;
           return {
@@ -147,6 +162,13 @@ export function useGame(): UseGameReturn {
             })),
           };
         });
+      })
+    );
+
+    cleanups.push(
+      on('next:round:starting', () => {
+        setIsRoundEnded(false);
+        setRoundEndData(null);
       })
     );
 
@@ -244,12 +266,19 @@ export function useGame(): UseGameReturn {
     clearSocketError();
   }, [clearSocketError]);
 
+  const clearRoundEnd = useCallback(() => {
+    setIsRoundEnded(false);
+    setRoundEndData(null);
+  }, []);
+
   return {
     game,
     player,
     isLoading,
     error: error || socketError,
     connected,
+    roundEndData,
+    isRoundEnded,
     createGame,
     joinGame,
     startGame,
@@ -259,6 +288,7 @@ export function useGame(): UseGameReturn {
     newGame,
     leaveGame,
     clearError,
+    clearRoundEnd,
   };
 }
 
