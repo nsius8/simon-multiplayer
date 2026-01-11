@@ -185,18 +185,18 @@ export function useGame(): UseGameReturn {
     (settings: GameSettings, hostName: string) => {
       setIsLoading(true);
       setError(null);
-      emit('createGame', { hostName, settings });
+      emit('createGame', { hostName, settings, playerId });
     },
-    [emit]
+    [emit, playerId]
   );
 
   const joinGame = useCallback(
     (code: string, playerName: string) => {
       setIsLoading(true);
       setError(null);
-      emit('joinGame', { code, playerName });
+      emit('joinGame', { code, playerName, playerId });
     },
-    [emit]
+    [emit, playerId]
   );
 
   const startGame = useCallback(() => {

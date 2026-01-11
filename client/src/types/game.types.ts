@@ -135,10 +135,10 @@ export interface LeaderboardEntry {
 
 // Client → Server Events
 export interface ClientToServerEvents {
-  createGame: (data: { hostName: string; settings: GameSettings }) => void;
+  createGame: (data: { hostName: string; settings: GameSettings; playerId: string }) => void;
   refreshColors: (data: { gameId: string }) => void;
   startGame: (data: { gameId: string }) => void;
-  joinGame: (data: { code: string; playerName: string }) => void;
+  joinGame: (data: { code: string; playerName: string; playerId: string }) => void;
   submitSequence: (data: {
     gameId: string;
     sequence: string[];

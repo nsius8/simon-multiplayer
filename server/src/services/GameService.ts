@@ -18,11 +18,12 @@ const MAX_PLAYERS = 10;
 export function createNewGame(
   hostName: string,
   settings: GameSettings,
-  socketId: string
+  socketId: string,
+  clientPlayerId?: string
 ): { game: Game; playerId: string } {
   const gameId = generateGameId();
   const gameCode = generateGameCode();
-  const playerId = generatePlayerId();
+  const playerId = clientPlayerId || generatePlayerId();
 
   const game = createGame(gameId, gameCode, playerId, settings);
   const hostPlayer = createPlayer(playerId, socketId, hostName, true);
@@ -56,7 +57,8 @@ export function getGameByCode(code: string): Game | undefined {
 export function addPlayerToGame(
   game: Game,
   playerName: string,
-  socketId: string
+  socketId: string,
+  clientPlayerId?: string
 ): { success: boolean; player?: Player; error?: string } {
   if (game.status !== 'lobby') {
     return { success: false, error: 'Game has already started' };
@@ -66,7 +68,7 @@ export function addPlayerToGame(
     return { success: false, error: 'Game is full' };
   }
 
-  const playerId = generatePlayerId();
+  const playerId = clientPlayerId || generatePlayerId();
   const player = createPlayer(playerId, socketId, playerName, false);
   game.players.push(player);
 

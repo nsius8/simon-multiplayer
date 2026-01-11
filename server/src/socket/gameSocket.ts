@@ -31,9 +31,9 @@ export function setupGameSocket(io: Server): void {
     console.log(`🔌 Client connected: ${socket.id}`);
 
     // Create a new game
-    socket.on('createGame', async (data: { hostName: string; settings: GameSettings }) => {
+    socket.on('createGame', async (data: { hostName: string; settings: GameSettings; playerId: string }) => {
       try {
-        const { hostName, settings } = data;
+        const { hostName, settings, playerId: clientPlayerId } = data;
 
         // Validate settings
         if (!validateGameSettings(settings)) {
@@ -47,7 +47,7 @@ export function setupGameSocket(io: Server): void {
           return;
         }
 
-        const { game, playerId } = createNewGame(sanitizedName, settings, socket.id);
+        const { game, playerId } = createNewGame(sanitizedName, settings, socket.id, clientPlayerId);
 
         // Track this socket
         socketToPlayer.set(socket.id, { playerId, gameId: game.id });
@@ -73,9 +73,9 @@ export function setupGameSocket(io: Server): void {
     });
 
     // Join an existing game
-    socket.on('joinGame', async (data: { code: string; playerName: string }) => {
+    socket.on('joinGame', async (data: { code: string; playerName: string; playerId: string }) => {
       try {
-        const { code, playerName } = data;
+        const { code, playerName, playerId: clientPlayerId } = data;
 
         if (!validateGameCode(code)) {
           socket.emit('join:error', { message: 'Invalid game code format' });
@@ -94,7 +94,7 @@ export function setupGameSocket(io: Server): void {
           return;
         }
 
-        const result = addPlayerToGame(game, sanitizedName, socket.id);
+        const result = addPlayerToGame(game, sanitizedName, socket.id, clientPlayerId);
         if (!result.success) {
           socket.emit('join:error', { message: result.error || 'Failed to join game' });
           return;
