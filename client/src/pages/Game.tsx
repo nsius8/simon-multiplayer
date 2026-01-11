@@ -7,7 +7,6 @@ import GameBoard from '../components/game/GameBoard';
 import RoundLeaderboard from '../components/leaderboard/RoundLeaderboard';
 import FinalLeaderboard from '../components/leaderboard/FinalLeaderboard';
 import { Button } from '../components/ui/button';
-import { playersToLeaderboard, getWinner } from '../utils/gameUtils';
 
 type GamePhase = 'playing' | 'roundEnd' | 'gameEnd';
 
@@ -25,6 +24,7 @@ export default function Game() {
     leaveGame,
     isRoundEnded,
     roundEndData,
+    gameEndData,
   } = useGameContext();
 
   const [phase, setPhase] = useState<GamePhase>('playing');
@@ -85,8 +85,6 @@ export default function Game() {
   }
 
   const isHost = player.isHost;
-  const leaderboard = playersToLeaderboard(game.players, game.settings.mode);
-  const winner = getWinner(game.players, game.settings.mode);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -149,10 +147,10 @@ export default function Game() {
           />
         )}
 
-        {phase === 'gameEnd' && winner && (
+        {phase === 'gameEnd' && gameEndData && (
           <FinalLeaderboard
-            finalResults={leaderboard}
-            winner={winner}
+            finalResults={gameEndData.finalLeaderboard}
+            winner={gameEndData.winner}
             mode={game.settings.mode}
             isHost={isHost}
             onPlayAgain={handlePlayAgain}

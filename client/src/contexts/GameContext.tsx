@@ -16,6 +16,11 @@ interface RoundEndData {
   eliminatedPlayers: string[];
 }
 
+interface GameEndData {
+  finalLeaderboard: LeaderboardEntry[];
+  winner: Player;
+}
+
 interface GameContextValue {
   // Game state
   game: GameState | null;
@@ -25,6 +30,7 @@ interface GameContextValue {
   connected: boolean;
   roundEndData: RoundEndData | null;
   isRoundEnded: boolean;
+  gameEndData: GameEndData | null;
 
   // Game actions
   createGame: (settings: GameSettings, hostName: string) => void;
@@ -66,6 +72,7 @@ export function GameProvider({ children }: GameProviderProps) {
     connected: gameHook.connected,
     roundEndData: gameHook.roundEndData,
     isRoundEnded: gameHook.isRoundEnded,
+    gameEndData: gameHook.gameEndData,
 
     // Game actions
     createGame: gameHook.createGame,

@@ -104,16 +104,6 @@ export default function Home() {
           </Button>
         </div>
 
-        {/* Footer links */}
-        <div className="mt-12 flex gap-6 justify-center text-white/60 text-sm">
-          <button className="hover:text-white transition-colors">
-            How to Play
-          </button>
-          <span>•</span>
-          <button className="hover:text-white transition-colors">
-            About
-          </button>
-        </div>
       </motion.div>
     </div>
   );

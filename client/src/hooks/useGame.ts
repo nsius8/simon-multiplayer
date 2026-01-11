@@ -15,6 +15,11 @@ interface RoundEndData {
   eliminatedPlayers: string[];
 }
 
+interface GameEndData {
+  finalLeaderboard: LeaderboardEntry[];
+  winner: Player;
+}
+
 interface UseGameReturn {
   game: GameState | null;
   player: Player | null;
@@ -23,6 +28,7 @@ interface UseGameReturn {
   connected: boolean;
   roundEndData: RoundEndData | null;
   isRoundEnded: boolean;
+  gameEndData: GameEndData | null;
   createGame: (settings: GameSettings, hostName: string) => void;
   joinGame: (code: string, playerName: string) => void;
   startGame: () => void;
@@ -43,6 +49,7 @@ export function useGame(): UseGameReturn {
   const [error, setError] = useState<string | null>(null);
   const [roundEndData, setRoundEndData] = useState<RoundEndData | null>(null);
   const [isRoundEnded, setIsRoundEnded] = useState(false);
+  const [gameEndData, setGameEndData] = useState<GameEndData | null>(null);
 
   const player = game?.players.find((p) => p.id === playerId) || null;
 
@@ -107,6 +114,8 @@ export function useGame(): UseGameReturn {
 
     cleanups.push(
       on('game:started', () => {
+        // Clear any previous game end data
+        setGameEndData(null);
         setGame((prev) => {
           if (!prev) return prev;
           return {
@@ -178,7 +187,8 @@ export function useGame(): UseGameReturn {
     );
 
     cleanups.push(
-      on('game:end', () => {
+      on('game:end', ({ finalLeaderboard, winner }) => {
+        setGameEndData({ finalLeaderboard, winner });
         setGame((prev) => {
           if (!prev) return prev;
           return {
@@ -284,6 +294,7 @@ export function useGame(): UseGameReturn {
     connected,
     roundEndData,
     isRoundEnded,
+    gameEndData,
     createGame,
     joinGame,
     startGame,
