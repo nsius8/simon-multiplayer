@@ -140,6 +140,7 @@ export interface ClientToServerEvents {
   refreshColors: (data: { gameId: string }) => void;
   startGame: (data: { gameId: string }) => void;
   joinGame: (data: { code: string; playerName: string; playerId: string }) => void;
+  rejoinGame: (data: { gameId: string; playerId: string }) => void;
   submitSequence: (data: {
     gameId: string;
     sequence: string[];
@@ -252,5 +253,5 @@ export const COLOR_JOKES = [
 
 export const MAX_PLAYERS = 10;
 export const MIN_PLAYERS_TO_START = 2;
-export const LEADERBOARD_DISPLAY_TIME = 7000; // 7 seconds
+export const LEADERBOARD_DISPLAY_TIME = 3000; // 3 seconds
 export const COUNTDOWN_TIME = 3; // 3 seconds before next round

@@ -41,17 +41,55 @@ interface UseGameReturn {
   clearRoundEnd: () => void;
 }
 
+// Session storage keys
+const SESSION_GAME_ID = 'simon_game_id';
+const SESSION_PLAYER_ID = 'simon_player_id';
+
+function getStoredSession(): { gameId: string | null; playerId: string | null } {
+  return {
+    gameId: sessionStorage.getItem(SESSION_GAME_ID),
+    playerId: sessionStorage.getItem(SESSION_PLAYER_ID),
+  };
+}
+
+function storeSession(gameId: string, playerId: string): void {
+  sessionStorage.setItem(SESSION_GAME_ID, gameId);
+  sessionStorage.setItem(SESSION_PLAYER_ID, playerId);
+}
+
+function clearSession(): void {
+  sessionStorage.removeItem(SESSION_GAME_ID);
+  sessionStorage.removeItem(SESSION_PLAYER_ID);
+}
+
 export function useGame(): UseGameReturn {
   const { connected, error: socketError, emit, on, clearError: clearSocketError } = useSocket();
   const [game, setGame] = useState<GameState | null>(null);
-  const [playerId] = useState(() => generatePlayerId());
+  // Try to restore playerId from session, otherwise generate a new one
+  const [playerId] = useState(() => {
+    const stored = getStoredSession();
+    return stored.playerId || generatePlayerId();
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [roundEndData, setRoundEndData] = useState<RoundEndData | null>(null);
   const [isRoundEnded, setIsRoundEnded] = useState(false);
   const [gameEndData, setGameEndData] = useState<GameEndData | null>(null);
+  const [hasAttemptedRejoin, setHasAttemptedRejoin] = useState(false);
 
   const player = game?.players.find((p) => p.id === playerId) || null;
+
+  // Attempt to rejoin game on connect if we have a stored session
+  useEffect(() => {
+    if (connected && !game && !hasAttemptedRejoin) {
+      const stored = getStoredSession();
+      if (stored.gameId && stored.playerId) {
+        console.log('Attempting to rejoin game:', stored.gameId);
+        setHasAttemptedRejoin(true);
+        emit('rejoinGame', { gameId: stored.gameId, playerId: stored.playerId });
+      }
+    }
+  }, [connected, game, hasAttemptedRejoin, emit]);
 
   // Set up event listeners
   useEffect(() => {
@@ -68,6 +106,8 @@ export function useGame(): UseGameReturn {
       on('game:state', ({ game: gameState }) => {
         setGame(gameState);
         setIsLoading(false);
+        // Store session for reconnection
+        storeSession(gameState.id, playerId);
       })
     );
 
@@ -210,6 +250,10 @@ export function useGame(): UseGameReturn {
       on('error', ({ message }) => {
         setError(message);
         setIsLoading(false);
+        // Clear session if game/player not found (rejoin failed)
+        if (message.includes('not found')) {
+          clearSession();
+        }
       })
     );
 
@@ -273,6 +317,7 @@ export function useGame(): UseGameReturn {
     if (game) {
       emit('leaveGame', { gameId: game.id });
       setGame(null);
+      clearSession(); // Clear stored session
     }
   }, [emit, game]);
 

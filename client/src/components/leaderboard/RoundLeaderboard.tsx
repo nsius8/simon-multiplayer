@@ -197,7 +197,7 @@ export const RoundLeaderboard = memo(function RoundLeaderboard({
           Next round starting in {countdown} seconds...
         </p>
         <div className="flex justify-center gap-2 mt-2">
-          {Array.from({ length: 5 }).map((_, i) => (
+          {Array.from({ length: 3 }).map((_, i) => (
             <motion.div
               key={i}
               className={cn(

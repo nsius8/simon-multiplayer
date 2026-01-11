@@ -123,6 +123,46 @@ export function setupGameSocket(io: Server): void {
       }
     });
 
+    // Rejoin an existing game (after page refresh)
+    socket.on('rejoinGame', async (data: { gameId: string; playerId: string }) => {
+      try {
+        const { gameId, playerId } = data;
+        console.log(`🔄 Rejoin attempt: gameId=${gameId}, playerId=${playerId}`);
+
+        const game = getGameById(gameId);
+        if (!game) {
+          console.log(`❌ Game not found for rejoin: ${gameId}`);
+          socket.emit('error', { message: 'Game not found' });
+          return;
+        }
+
+        // Find the player in the game
+        const player = game.players.find((p) => p.id === playerId);
+        if (!player) {
+          console.log(`❌ Player not found in game: ${playerId}`);
+          socket.emit('error', { message: 'Player not found in game' });
+          return;
+        }
+
+        // Update the player's socket ID
+        player.socketId = socket.id;
+
+        // Track this socket
+        socketToPlayer.set(socket.id, { playerId, gameId: game.id });
+
+        // Join socket room
+        socket.join(game.id);
+
+        // Send full game state to rejoining player
+        socket.emit('game:state', { game: getClientGameState(game) });
+
+        console.log(`🔄 ${player.name} rejoined game ${game.gameCode}`);
+      } catch (error) {
+        console.error('Error rejoining game:', error);
+        socket.emit('error', { message: 'Failed to rejoin game' });
+      }
+    });
+
     // Refresh colors (host only)
     socket.on('refreshColors', async (data: { gameId: string }) => {
       try {
@@ -428,6 +468,6 @@ function processRoundEnd(io: Server, game: ReturnType<typeof getGameById>): void
       setTimeout(() => {
         startNewRound(io, game);
       }, 3000);
-    }, 7000); // Show leaderboard for 7 seconds
+    }, 3000); // Show leaderboard for 3 seconds
   }
 }
