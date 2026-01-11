@@ -23,6 +23,7 @@ export interface GameSettings {
 export interface PlayerStats {
   mistakes: number;
   roundsSurvived: number;
+  roundsSubmitted: number;
   totalReactionTime: number;
   averageReactionTime: number;
   lastRoundTime?: number;
@@ -77,6 +78,7 @@ export function createPlayer(
     stats: {
       mistakes: 0,
       roundsSurvived: 0,
+      roundsSubmitted: 0,
       totalReactionTime: 0,
       averageReactionTime: 0,
     },

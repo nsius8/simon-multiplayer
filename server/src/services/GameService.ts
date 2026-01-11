@@ -184,9 +184,10 @@ export function submitPlayerInput(
     player.stats.mistakes++;
   }
   player.stats.roundsSurvived = game.currentRound;
+  player.stats.roundsSubmitted++;
   player.stats.totalReactionTime += reactionTime;
   player.stats.averageReactionTime =
-    player.stats.totalReactionTime / game.currentRound;
+    player.stats.totalReactionTime / player.stats.roundsSubmitted;
   player.stats.lastRoundTime = reactionTime;
 
   // Determine if player should be eliminated (Last Man Standing mode)
@@ -273,6 +274,7 @@ export function resetGame(game: Game): void {
     player.stats = {
       mistakes: 0,
       roundsSurvived: 0,
+      roundsSubmitted: 0,
       totalReactionTime: 0,
       averageReactionTime: 0,
     };

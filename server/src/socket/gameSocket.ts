@@ -301,6 +301,7 @@ export function setupGameSocket(io: Server): void {
           p.stats = {
             mistakes: 0,
             roundsSurvived: 0,
+            roundsSubmitted: 0,
             totalReactionTime: 0,
             averageReactionTime: 0,
           };

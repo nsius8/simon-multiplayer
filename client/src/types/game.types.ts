@@ -53,6 +53,7 @@ export interface GameSettings {
 export interface PlayerStats {
   mistakes: number;
   roundsSurvived: number;
+  roundsSubmitted: number;
   totalReactionTime: number;
   averageReactionTime: number;
   lastRoundTime?: number;
