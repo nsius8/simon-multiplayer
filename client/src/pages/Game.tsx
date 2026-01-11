@@ -131,7 +131,8 @@ export default function Game() {
 
       {/* Main content */}
       <main className="flex-1 flex items-center justify-center p-4 pt-20">
-        {phase === 'playing' && (
+        {/* Show GameBoard when playing OR when transitioning from roundEnd (roundEndData cleared) */}
+        {(phase === 'playing' || (phase === 'roundEnd' && !roundEndData)) && (
           <GameBoard
             game={game}
             playerId={player.id}
