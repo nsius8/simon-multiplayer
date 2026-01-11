@@ -120,6 +120,10 @@ export function useGame(): UseGameReturn {
 
     cleanups.push(
       on('round:start', ({ round, sequence }) => {
+        // Clear round end data when new round starts
+        setIsRoundEnded(false);
+        setRoundEndData(null);
+        
         setGame((prev) => {
           if (!prev) return prev;
           return {
@@ -166,9 +170,10 @@ export function useGame(): UseGameReturn {
     );
 
     cleanups.push(
-      on('next:round:starting', () => {
-        setIsRoundEnded(false);
-        setRoundEndData(null);
+      on('next:round:starting', ({ countdown }: { countdown: number }) => {
+        // Don't clear roundEndData yet - we'll show "Starting in X..." message
+        // The actual transition to 'playing' happens when round:start is received
+        console.log(`Next round starting in ${countdown} seconds...`);
       })
     );
 

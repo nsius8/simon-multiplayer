@@ -25,7 +25,6 @@ export default function Game() {
     leaveGame,
     isRoundEnded,
     roundEndData,
-    clearRoundEnd,
   } = useGameContext();
 
   const [phase, setPhase] = useState<GamePhase>('playing');
@@ -44,12 +43,20 @@ export default function Game() {
     }
   }, [game?.status]);
 
-  // Handle round end
+  // Handle round end - show leaderboard when round ends
   useEffect(() => {
     if (isRoundEnded && roundEndData) {
       setPhase('roundEnd');
     }
   }, [isRoundEnded, roundEndData]);
+
+  // Transition to playing when new round starts (round:start received)
+  // This is triggered by isRoundEnded becoming false + game.currentRound changing
+  useEffect(() => {
+    if (!isRoundEnded && phase === 'roundEnd') {
+      setPhase('playing');
+    }
+  }, [isRoundEnded, phase]);
 
   const handleSubmitSequence = useCallback(
     (sequence: string[], reactionTime: number) => {
@@ -57,11 +64,6 @@ export default function Game() {
     },
     [submitSequence]
   );
-
-  const handleContinue = useCallback(() => {
-    setPhase('playing');
-    clearRoundEnd();
-  }, [clearRoundEnd]);
 
   const handleLeave = useCallback(() => {
     leaveGame();
@@ -143,7 +145,6 @@ export default function Game() {
             mode={game.settings.mode}
             round={game.currentRound}
             totalRounds={game.settings.rounds}
-            onContinue={handleContinue}
           />
         )}
 

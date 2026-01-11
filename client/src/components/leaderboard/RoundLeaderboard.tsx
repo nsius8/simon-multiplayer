@@ -10,7 +10,6 @@ interface RoundLeaderboardProps {
   mode: GameMode;
   round: number;
   totalRounds?: number;
-  onContinue?: () => void;
   autoAdvanceTime?: number;
   className?: string;
 }
@@ -20,18 +19,19 @@ export const RoundLeaderboard = memo(function RoundLeaderboard({
   mode,
   round,
   totalRounds,
-  onContinue,
   autoAdvanceTime = LEADERBOARD_DISPLAY_TIME,
   className = '',
 }: RoundLeaderboardProps) {
   const [countdown, setCountdown] = useState(Math.ceil(autoAdvanceTime / 1000));
 
+  // Countdown is just for visual feedback - server controls the actual transition
   useEffect(() => {
     const interval = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          onContinue?.();
+          // Don't call onContinue here - let the server control the transition
+          // via 'next:round:starting' event
           return 0;
         }
         return prev - 1;
@@ -39,7 +39,7 @@ export const RoundLeaderboard = memo(function RoundLeaderboard({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [onContinue]);
+  }, []);
 
   // Sort results
   const sortedResults = [...results].sort((a, b) => {
