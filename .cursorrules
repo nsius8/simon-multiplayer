@@ -1,0 +1,87 @@
+# Simon Multiplayer Game - Development Rules
+
+## Project Overview
+- Multiplayer web-based Simon Says game
+- Real-time synchronization across all players
+- Support for mobile and desktop devices
+- Host creates game, players join via code/link/QR
+
+## Documentation Structure
+
+**Detailed specifications are in separate files for context efficiency:**
+
+- `docs/GAME_RULES.md` - Complete game mechanics, rules, and gameplay flow
+- `docs/DESIGN_SYSTEM.md` - Figma design specs, colors, typography, components, responsive breakpoints
+- `docs/DEVELOPMENT.md` - Tech stack, project structure, development approach, phases
+- `docs/API.md` - TypeScript interfaces, Socket.io events, utility functions
+
+**When implementing features, reference the appropriate documentation file.**
+
+## Core Development Principles
+
+### Bottom-Up Component Development
+**CRITICAL: Always build components in dependency order.**
+
+1. **Foundation** → Types, utilities (colorUtils, jokes, soundManager)
+2. **Shared Components** → Button, QRCode
+3. **Atomic Game Components** → ColorButton, Timer
+4. **Composite Components** → SequenceDisplay, GameBoard
+5. **Lobby Components** → HostSetup, LobbyWaiting, PlayerJoin
+6. **Leaderboard Components** → RoundLeaderboard, FinalLeaderboard
+7. **Hooks** → useSocket, useSound, useGame
+8. **Context** → GameContext
+9. **Pages** → Home, HostLobby, PlayerLobby, Game
+10. **Backend** → Server, services, socket handlers
+
+### Component Development Rules
+
+1. **Build in dependency order** - Never build a component that depends on another that doesn't exist
+2. **Test in isolation first** - Each component works with mock data before integration
+3. **Type everything** - Use TypeScript interfaces for all props and data
+4. **Mobile-first** - Design for mobile, enhance for desktop
+5. **Accessibility** - ARIA labels, keyboard navigation, high contrast
+6. **Performance** - React.memo for static components, debounce rapid interactions
+7. **Error boundaries** - Wrap major sections
+8. **Consistent styling** - Tailwind utility classes, design tokens
+
+## Quick Reference
+
+### Key Formulas
+- **Timer**: `10 + (2 × round number)` seconds
+- **Speed timing**: Slow (800ms/400ms), Medium (600ms/300ms), Fast (400ms/200ms)
+- **Grid layout**: 4 colors (2×2), 5-6 colors (2×3), 7-9 colors (3×3)
+
+### Design Tokens (Quick Reference)
+- **Primary Blue**: `#3B82F6`
+- **Background Dark**: `#0F172A`
+- **Surface**: `#1E293B`
+- **Text Primary**: `#F8FAFC`
+- **Spacing**: 8px base unit
+- **Border Radius**: Small (8px), Medium (12px), Large (16px), XLarge (24px)
+
+### Tech Stack (Quick Reference)
+- **Frontend**: React + TypeScript + Tailwind CSS
+- **Backend**: Node.js + Express + Socket.io
+- **Storage**: Redis
+- **Icons**: Lucide Icons or Heroicons
+
+## Development Priorities
+
+1. Foundation layer (types, utilities)
+2. Shared components (Button, QRCode)
+3. Atomic game components (ColorButton, Timer)
+4. Composite game components (SequenceDisplay, GameBoard)
+5. Lobby components (HostSetup, LobbyWaiting)
+6. Leaderboard components
+7. Hooks and context
+8. Pages and routing
+9. Backend services
+10. Integration and testing
+11. Polish and optimization
+
+## When to Reference Documentation
+
+- **Building components** → See `docs/DESIGN_SYSTEM.md` for styling, spacing, colors
+- **Implementing game logic** → See `docs/GAME_RULES.md` for mechanics and rules
+- **Setting up project** → See `docs/DEVELOPMENT.md` for structure and approach
+- **Working with API/Data** → See `docs/API.md` for interfaces and events
