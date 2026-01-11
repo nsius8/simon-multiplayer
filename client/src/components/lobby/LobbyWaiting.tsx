@@ -54,96 +54,135 @@ export const LobbyWaiting = memo(function LobbyWaiting({
         Game Lobby
       </h1>
 
-      <div className="grid md:grid-cols-2 gap-8 mb-8">
-        {/* Left Side - Game Code & QR */}
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Game Code
-            </label>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 bg-gray-100 px-4 py-3 rounded-lg font-mono text-2xl font-bold text-center tracking-widest">
-                {game.gameCode}
+      <div className={cn('grid gap-8 mb-8', isHost ? 'md:grid-cols-2' : 'max-w-md mx-auto')}>
+        {/* Left Side - Game Code & QR (Host only) */}
+        {isHost && (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Game Code
+              </label>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 bg-gray-100 px-4 py-3 rounded-lg font-mono text-2xl font-bold text-center tracking-widest">
+                  {game.gameCode}
+                </div>
+                <button
+                  onClick={copyGameCode}
+                  className="p-3 bg-purple-100 hover:bg-purple-200 rounded-lg transition-colors"
+                  title="Copy game code"
+                >
+                  {copied ? (
+                    <Check className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <Copy className="w-5 h-5 text-purple-600" />
+                  )}
+                </button>
               </div>
-              <button
-                onClick={copyGameCode}
-                className="p-3 bg-purple-100 hover:bg-purple-200 rounded-lg transition-colors"
-                title="Copy game code"
+            </div>
+
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <div className="flex justify-center mb-4">
+                <QRCode value={gameUrl} size={180} />
+              </div>
+              <p className="text-sm text-center text-gray-600">
+                Scan to join game
+              </p>
+              <Button
+                variant="outline"
+                onClick={copyGameUrl}
+                className="w-full mt-3"
               >
                 {copied ? (
-                  <Check className="w-5 h-5 text-green-600" />
+                  <>
+                    <Check className="w-4 h-4 text-green-600" />
+                    <span>Copied!</span>
+                  </>
                 ) : (
-                  <Copy className="w-5 h-5 text-purple-600" />
+                  <>
+                    <Copy className="w-4 h-4" />
+                    <span>Copy Link</span>
+                  </>
                 )}
-              </button>
+              </Button>
             </div>
-          </div>
 
-          <div className="bg-gray-50 p-6 rounded-lg">
-            <div className="flex justify-center mb-4">
-              <QRCode value={gameUrl} size={180} />
-            </div>
-            <p className="text-sm text-center text-gray-600">
-              Scan to join game
-            </p>
-            <Button
-              variant="outline"
-              onClick={copyGameUrl}
-              className="w-full mt-3"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4 text-green-600" />
-                  <span>Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  <span>Copy Link</span>
-                </>
-              )}
-            </Button>
-          </div>
+            {/* Game Settings */}
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <h3 className="font-semibold text-purple-900 mb-3">Game Settings</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Difficulty:</span>
+                  <span className="font-medium">
+                    {game.settings.difficulty} colors
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Speed:</span>
+                  <span className="font-medium capitalize">
+                    {game.settings.speed}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Mode:</span>
+                  <span className="font-medium">
+                    {game.settings.mode === 'lastManStanding'
+                      ? 'Last Man Standing'
+                      : `Best of ${game.settings.rounds}`}
+                  </span>
+                </div>
+              </div>
 
-          {/* Game Settings */}
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-purple-900 mb-3">Game Settings</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Difficulty:</span>
-                <span className="font-medium">
-                  {game.settings.difficulty} colors
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Speed:</span>
-                <span className="font-medium capitalize">
-                  {game.settings.speed}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Mode:</span>
-                <span className="font-medium">
-                  {game.settings.mode === 'lastManStanding'
-                    ? 'Last Man Standing'
-                    : `Best of ${game.settings.rounds}`}
-                </span>
+              {/* Color Preview */}
+              <div className="mt-4">
+                <ColorPreview
+                  colors={game.settings.selectedColors}
+                  onRefresh={onRefreshColors}
+                  showRefresh={true}
+                />
               </div>
             </div>
-
-            {/* Color Preview */}
-            <div className="mt-4">
-              <ColorPreview
-                colors={game.settings.selectedColors}
-                onRefresh={isHost ? onRefreshColors : undefined}
-                showRefresh={isHost}
-              />
-            </div>
           </div>
-        </div>
+        )}
 
-        {/* Right Side - Players */}
+        {/* Right Side - Players (or main content for non-host) */}
         <div className="space-y-6">
+          {/* Game Settings for non-host */}
+          {!isHost && (
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <h3 className="font-semibold text-purple-900 mb-3">Game Settings</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Difficulty:</span>
+                  <span className="font-medium">
+                    {game.settings.difficulty} colors
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Speed:</span>
+                  <span className="font-medium capitalize">
+                    {game.settings.speed}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Mode:</span>
+                  <span className="font-medium">
+                    {game.settings.mode === 'lastManStanding'
+                      ? 'Last Man Standing'
+                      : `Best of ${game.settings.rounds}`}
+                  </span>
+                </div>
+              </div>
+
+              {/* Color Preview */}
+              <div className="mt-4">
+                <ColorPreview
+                  colors={game.settings.selectedColors}
+                  showRefresh={false}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -181,8 +220,8 @@ export const LobbyWaiting = memo(function LobbyWaiting({
                 </motion.div>
               ))}
 
-              {/* Empty slots */}
-              {Array.from({ length: 10 - game.players.length }).map((_, i) => (
+              {/* Empty slots - only show for host */}
+              {isHost && Array.from({ length: 10 - game.players.length }).map((_, i) => (
                 <div
                   key={`empty-${i}`}
                   className="h-16 border-2 border-dashed border-gray-200 rounded-lg"
