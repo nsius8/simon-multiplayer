@@ -77,14 +77,18 @@ export function setupGameSocket(io: Server): void {
       try {
         const { code, playerName, playerId: clientPlayerId } = data;
 
+        console.log(`🔍 Join attempt: code=${code}, player=${playerName}`);
+
         if (!validateGameCode(code)) {
+          console.log(`❌ Invalid game code format: ${code}`);
           socket.emit('join:error', { message: 'Invalid game code format' });
           return;
         }
 
         const game = getGameByCode(code);
         if (!game) {
-          socket.emit('join:error', { message: 'Game not found' });
+          console.log(`❌ Game not found: ${code}`);
+          socket.emit('join:error', { message: 'Game not found. The game may have ended or the code is incorrect.' });
           return;
         }
 

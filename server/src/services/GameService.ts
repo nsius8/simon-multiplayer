@@ -47,6 +47,7 @@ export function getGameById(gameId: string): Game | undefined {
  */
 export function getGameByCode(code: string): Game | undefined {
   const gameId = gamesByCode.get(code.toUpperCase());
+  console.log(`🔍 Looking for game: code=${code.toUpperCase()}, found gameId=${gameId}, total games=${games.size}`);
   if (!gameId) return undefined;
   return games.get(gameId);
 }
