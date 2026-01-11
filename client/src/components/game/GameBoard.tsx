@@ -154,7 +154,8 @@ export const GameBoard = memo(function GameBoard({
             warningThreshold={5}
           />
 
-          <div className="flex flex-col gap-3 md:gap-4">
+          {/* Fixed width container for consistent layout across different color counts */}
+          <div className="flex flex-col gap-3 md:gap-4 w-[276px] sm:w-[372px] md:w-[420px]">
             {colorRows.map((row, rowIndex) => (
               <div key={rowIndex} className="flex justify-center gap-3 md:gap-4">
                 {row.map((color) => (
